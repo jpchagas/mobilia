@@ -1,0 +1,91 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 18, 16, 0.42);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+  z-index: 40;
+}
+.scrim.open { opacity: 1; pointer-events: auto; }
+
+.drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(280px, 82vw);
+  background: var(--charcoal);
+  color: var(--linen);
+  transform: translateX(-100%);
+  transition: transform 0.26s cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  padding: max(24px, env(safe-area-inset-top)) 16px 16px;
+}
+.drawer.open { transform: translateX(0); }
+
+.drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.drawer-head span { font-family: var(--font-display); font-size: 16px; }
+
+.icon-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+.icon-btn:hover { background: rgba(255, 255, 255, 0.08); }
+
+.new-project {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px dashed rgba(243, 236, 225, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--clay-soft);
+  margin-bottom: 18px;
+  cursor: pointer;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+.new-project:hover { background: rgba(255, 255, 255, 0.06); }
+
+.drawer-label { font-size: 10.5px; letter-spacing: 0.05em; color: #8a8177; margin: 0 0 8px 4px; }
+
+.drawer-empty { font-size: 12.5px; color: #8a8177; padding: 8px 4px; line-height: 1.5; }
+
+.project-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 6px;
+  border-radius: 9px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: inherit;
+  width: 100%;
+  text-align: left;
+}
+.project-item:hover { background: rgba(255, 255, 255, 0.06); }
+
+.project-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--clay) 0%, var(--clay-deep) 100%);
+}
+
+.pname { font-size: 12.5px; font-weight: 500; }
+.pdate { font-size: 10.5px; color: #8a8177; display: flex; align-items: center; gap: 3px; margin-top: 2px; }

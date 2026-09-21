@@ -1,0 +1,39 @@
+:root {
+  --clay: #CB6843;
+  --clay-deep: #9E4E2F;
+  --clay-soft: #E7B79A;
+  --slate: #3E4451;
+  --slate-deep: #262B34;
+  --linen: #F3ECE1;
+  --linen-deep: #E8DDCC;
+  --charcoal: #1E1C1A;
+  --line: #DED0BC;
+  --ink: #2A2724;
+
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Work Sans', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--linen);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+button, input {
+  font-family: inherit;
+}
+
+/* Respect reduced-motion preferences for the splash pulse / drawer slide */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

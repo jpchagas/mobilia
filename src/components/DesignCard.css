@@ -1,0 +1,52 @@
+.design-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  margin-top: 4px;
+  max-width: 84%;
+}
+
+.design-card .render {
+  height: 80px;
+  border-radius: 9px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, var(--slate) 0%, var(--slate-deep) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.design-card h4 { font-family: var(--font-display); font-size: 14px; margin: 0 0 4px; }
+.design-card p { font-size: 12px; color: #6b6258; margin: 0 0 10px; line-height: 1.4; }
+
+.cortecloud-btn {
+  width: 100%;
+  border: none;
+  border-radius: 9px;
+  background: var(--clay);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.cortecloud-btn:hover { background: var(--clay-deep); }
+.cortecloud-btn:disabled { opacity: 0.65; cursor: default; }
+
+.sent-confirmation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #3f7a4e;
+  padding: 9px;
+}
+
+.send-error { font-size: 11.5px; color: #9e4e2f; margin-top: 6px; text-align: center; }
