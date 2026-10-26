@@ -27,8 +27,20 @@ export default defineConfig({
         // Cache the app shell; chat calls to the AI provider and Firebase
         // always go to the network — never cache those responses.
         navigateFallback: "/index.html",
+        navigateFallbackDenylist: [/^\/api\//],
         globPatterns: ["**/*.{js,css,html}"],
       },
     }),
   ],
+  server: {
+    // In dev, /api/* goes to the deployed Hosting site (which forwards to the
+    // Cloud Function). Point API_PROXY_TARGET at the emulator to test locally,
+    // e.g. http://127.0.0.1:5000 with `firebase emulators:start`.
+    proxy: {
+      "/api": {
+        target: process.env.API_PROXY_TARGET || "https://mobilia-99550.web.app",
+        changeOrigin: true,
+      },
+    },
+  },
 });

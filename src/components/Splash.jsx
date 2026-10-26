@@ -10,11 +10,12 @@ export default function Splash() {
 
   useEffect(() => {
     if (status !== "ready") return;
-    // Small delay so the splash reads as a moment, not a flicker,
-    // even when auth resolves instantly from cache.
+    // Brief delay so the splash reads as a moment, not a flicker,
+    // even when auth resolves instantly from cache — kept short so
+    // returning users land in the chat almost immediately.
     const timer = setTimeout(() => {
       navigate(user ? "/chat" : "/login", { replace: true });
-    }, 900);
+    }, 450);
     return () => clearTimeout(timer);
   }, [status, user, navigate]);
 

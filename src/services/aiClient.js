@@ -1,29 +1,36 @@
 // aiClient.js
 //
-// Single seam between the chat UI and whichever multimodal model ends up
-// powering the design conversation. The UI only ever calls `sendMessage`;
-// swapping Gemini <-> GPT-4o <-> Claude means rewriting the body of the
-// call below, not touching ChatScreen.jsx.
+// Single seam between the chat UI and the models powering the design
+// conversation. The UI only ever calls `sendMessage`.
 //
-// Real image + text reasoning should happen server-side (a Cloud Function
-// or small API route) so provider API keys never ship in the client bundle.
-// This client just calls that endpoint.
+// The real work happens server-side in the `chat` Cloud Function
+// (functions/index.js), which tries Gemini first and falls back to Claude,
+// so provider API keys never ship in the client bundle.
 
-const AI_ENDPOINT = import.meta.env.VITE_AI_ENDPOINT; // e.g. your Cloud Function URL
+import { auth } from "../firebase";
+
+// Same-origin by default: Firebase Hosting rewrites /api/chat to the function
+// (and the Vite dev server proxies it).
+const AI_ENDPOINT = import.meta.env.VITE_AI_ENDPOINT || "/api/chat";
 
 /**
- * @param {Array<{role: 'user'|'assistant', content: string}>} history
- * @param {{ imageBase64?: string, imageMimeType?: string }} attachment
- * @returns {Promise<{ reply: string, designSpec?: object }>}
+ * @param {Array<{role: 'user'|'assistant', content: string, imageUrl?: string, designSpec?: object}>} history
+ *   Full conversation, oldest first; the last item is the user's new message.
+ *   imageUrl is a Firebase Storage download URL under rooms/{uid}/.
+ * @returns {Promise<{ reply: string, designSpec?: object, provider?: string }>}
  *   designSpec, when present, is a structured furniture spec ready to be
- *   handed to services/cortecloud.js — dimensions, material, edge-banding
- *   and drilling, matching what the Cortecloud service-creation endpoint expects.
+ *   handed to services/cortecloud.js — dimensions, material, edge-banding,
+ *   drilling and cut parts.
  */
-export async function sendMessage(history, attachment = {}) {
+export async function sendMessage(history) {
+  const token = await auth.currentUser?.getIdToken();
   const response = await fetch(AI_ENDPOINT, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ history, attachment }),
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    body: JSON.stringify({ history }),
   });
 
   if (!response.ok) {

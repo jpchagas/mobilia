@@ -8,9 +8,39 @@ via Cortecloud.
 
 ```bash
 npm install
-cp .env.example .env.local   # preencha com suas credenciais do Firebase
 npm run dev
 ```
+
+Em desenvolvimento, as chamadas para `/api/*` são encaminhadas para o site
+publicado (`https://mobilia-99550.web.app`), ou seja, para a Cloud Function já
+implantada. Para usar o emulador local, rode `firebase emulators:start` e
+inicie o Vite com `API_PROXY_TARGET=http://127.0.0.1:5000 npm run dev`.
+
+## Backend de IA (Gemini + Claude)
+
+A conversa é processada pela Cloud Function `chat` (`functions/`), servida em
+`/api/chat` pelo Firebase Hosting. Ela valida o token do Firebase Auth, lê as
+fotos do ambiente direto do Storage (apenas de `rooms/{uid}/`) e chama:
+
+1. **Gemini** (`gemini-3.8-flash`) como provedor principal;
+2. **Claude** (`claude-opus-5-5`) como reserva, se o Gemini falhar, demorar
+   demais ou devolver uma resposta inválida.
+
+Os dois respondem no mesmo formato JSON (`{ reply, designSpec? }`), definido
+em `functions/src/prompt.js` junto com o prompt de sistema.
+
+Para implantar (requer o plano **Blaze** no Firebase):
+
+```bash
+firebase functions:secrets:set GEMINI_API_KEY      # chave do Google AI Studio
+firebase functions:secrets:set ANTHROPIC_API_KEY   # chave do Claude Console
+cd functions && npm install && cd ..
+npm run build
+firebase deploy --only functions,hosting
+```
+
+Para o emulador local, crie `functions/.secret.local` com
+`GEMINI_API_KEY=...` e `ANTHROPIC_API_KEY=...` (o arquivo é ignorado pelo git).
 
 ## O que já está implementado
 
@@ -24,18 +54,18 @@ npm run dev
   Storage, chamada à IA através de `src/services/aiClient.js`.
 - **Drawer de projetos** — lista os projetos do usuário em tempo real
   (`useProjects`, ordenado por `updatedAt`).
-- **Cartão de design + handoff Cortecloud** — quando a IA retorna um
-  `designSpec`, aparece um cartão com o botão "Enviar para fabricação",
-  que chama `src/services/cortecloud.js`.
+- **Cartão de design + exportação Cortecloud** — quando a IA finaliza um
+  projeto (`designSpec`), o cartão permite copiar a lista de peças para colar
+  no Cortecloud (*Importar peças → Colar dados da planilha ou Excel*) ou
+  baixar uma planilha `.xlsx` no modelo de importação do Cortecloud, com
+  abas de chapas, fitas, componentes e cliente
+  (`src/services/cortecloudExport.js`).
 
 ## O que falta decidir/implementar antes de ir pra produção
 
-1. **Backend de IA** (`VITE_AI_ENDPOINT`): uma Cloud Function (ou API
-   própria) que recebe `{ history, attachment }`, chama o provedor
-   escolhido (Gemini, GPT-4o etc.) com a imagem + o histórico, e devolve
-   `{ reply, designSpec }`. O `designSpec` deve conter o que a integração
-   ERP da Cortecloud espera: dimensões, material (chapa), fita de borda e
-   furação.
+1. **Integração direta com o Cortecloud** — hoje a lista de peças é
+   exportada e colada manualmente; `src/services/cortecloud.js` é o ponto de
+   partida para uma integração via API (https://cortecloud.com/api-docs/).
 2. **Backend Cortecloud** (`VITE_BACKEND_BASE_URL`): rotas que criam o
    serviço na Cortecloud a partir do `designSpec` e implementam o fluxo de
    checkout (Cortecloud chama seu endpoint pedindo a URL de pagamento;

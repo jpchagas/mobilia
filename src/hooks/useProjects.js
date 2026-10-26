@@ -21,10 +21,18 @@ export function useProjects() {
       where("ownerId", "==", user.uid),
       orderBy("updatedAt", "desc")
     );
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setProjects(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        setProjects(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        setLoading(false);
+      },
+      (err) => {
+        // e.g. missing composite index or rules denying access
+        console.error("useProjects:", err);
+        setLoading(false);
+      }
+    );
     return unsubscribe;
   }, [user]);
 
